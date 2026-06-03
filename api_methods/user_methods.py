@@ -15,5 +15,6 @@ class UserMethods:
         return requests.post(url=URL.AUTH_USER, json=body)
 
     @staticmethod
+    @allure.step('Удаление пользователя')
     def delete_user(headers):
         return requests.delete(url=URL.DELETE_USER, headers=headers)
