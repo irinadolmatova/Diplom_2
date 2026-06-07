@@ -1,5 +1,4 @@
 import allure
-import pytest
 from api_methods.user_methods import UserMethods
 from generators import generate_user_payload
 from data import *
@@ -25,21 +24,32 @@ class TestCreateUser:
         assert duplicate_response.json().get("success") is False
         assert duplicate_response.json().get("message") == MSG_USER_EXISTS
 
-    @allure.title('Тест на ошибку при отсутствии одного из полей')
-    @pytest.mark.parametrize(
-    "missing_field,expected_message",
-    [("email", MSG_MISSING_FIELDS),
-     ("password", MSG_MISSING_FIELDS),
-     ("name", MSG_MISSING_FIELDS)
-    ])
-    def test_create_user_without_first_name(self, missing_field, expected_message):
+
+    @allure.title('Ошибка при создании пользователя: отсутствует email')
+    def test_create_user_without_email(self):
         body = generate_user_payload()
-        body_without_field = {
-            key: value
-            for key, value in body.items()
-            if key != missing_field
-            }
-        response = UserMethods.create_user(body_without_field)
+        del body["email"]
+        response = UserMethods.create_user(body)
         assert response.status_code == 403
         assert response.json().get("success") is False
-        assert response.json().get("message") == expected_message
+        assert response.json().get("message") == MSG_MISSING_FIELDS
+
+
+    @allure.title('Ошибка при создании пользователя: отсутствует password')
+    def test_create_user_without_password(self):
+        body = generate_user_payload()
+        del body["password"]
+        response = UserMethods.create_user(body)
+        assert response.status_code == 403
+        assert response.json().get("success") is False
+        assert response.json().get("message") == MSG_MISSING_FIELDS
+
+
+    @allure.title('Ошибка при создании пользователя: отсутствует name')
+    def test_create_user_without_name(self):
+        body = generate_user_payload()
+        del body["name"]
+        response = UserMethods.create_user(body)
+        assert response.status_code == 403
+        assert response.json().get("success") is False
+        assert response.json().get("message") == MSG_MISSING_FIELDS
