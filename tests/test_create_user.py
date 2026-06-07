@@ -6,15 +6,14 @@ from data import *
 class TestCreateUser:
 
     @allure.title('Тест на создание уникального пользователя')
-    def test_create_user(self):
-        body= generate_user_payload()
-        response= UserMethods.create_user(body)
-        token = response.json().get("accessToken")
-        if token:
-            headers = {"Authorization": token}
-            UserMethods.delete_user(headers)
+    def test_create_user(self, created_user):
+        response = created_user["response"]
+        token = created_user["token"]
+        body = created_user["body"]
         assert response.status_code == 200
         assert response.json().get("success") is True
+        assert token is not None
+        assert body["email"].endswith("@yandex.ru")
 
     @allure.title('Тест на ошибку при создании дубликата пользователя')
     def test_create_duplicate_user_conflict(self, user_cleanup):
